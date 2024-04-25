@@ -46,3 +46,7 @@ SNSやブログでの発信(検討中)
 ■ 機能の実装方針予定  
 地図に関する機能はGoogle Maps APIを使用して実装する。
 フロントエンドにReactの導入を検討中。
+
+
+■ 画面遷移図  
+Figma：https://www.figma.com/file/849OUg1uAJK8bpDH00AFNO  
