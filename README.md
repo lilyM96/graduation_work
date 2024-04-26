@@ -49,4 +49,4 @@ SNSやブログでの発信(検討中)
 
 
 ■ 画面遷移図  
-Figma：https://www.figma.com/file/849OUg1uAJK8bpDH00AFNO  
+https://www.figma.com/file/8QJhS7ayhSC8vTzCT98YPF
