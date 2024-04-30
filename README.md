@@ -49,4 +49,8 @@ SNSやブログでの発信(検討中)
 
 
 ■ 画面遷移図  
-https://www.figma.com/file/8QJhS7ayhSC8vTzCT98YPF
+https://www.figma.com/file/8QJhS7ayhSC8vTzCT98YPF  
+
+
+■ ER図  
+https://drive.google.com/file/d/1OQNEyx5BQjCMZE9yBbOSGu3LtE90qOx2
