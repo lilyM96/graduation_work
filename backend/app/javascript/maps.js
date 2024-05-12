@@ -1,6 +1,5 @@
 let geocoder
 let map //地図
-// const display = document.getElementById('display')
 var mapElement = document.getElementById('map'); // 地図を描画する要素
 var markers = []; // 検索結果(ピン)
 var list = []; // 検索結果(リスト)
@@ -60,8 +59,7 @@ function codeAddress(){
     if (status == 'OK') {
       map.setCenter(results[0].geometry.location);
 
-      // 画面に表示
-      // display.textContent = "緯度：" + results[ 0 ].geometry.location.lat() + ", 経度：" + results[ 0 ].geometry.location.lng()
+      // document.getElementById('display').textContent = "緯度：" + results[ 0 ].geometry.location.lat() + ", 経度：" + results[ 0 ].geometry.location.lng()
     } else {
       // 検索結果が何もなかった場合に表示
       alert('該当する結果がありませんでした：' + status);
@@ -83,8 +81,7 @@ function moveToCurrentLocation() {
         map.setCenter(latlng);
 
         // 画面に表示
-        console.log(latlng)
-        // display.textContent = "緯度：" + latitube + ", 経度：" + longitude
+        // document.getElementById('display').textContent = "緯度：" + latitube + ", 経度：" + longitude
     });
   } else {
     alert("このブラウザは位置情報に対応していません。");
@@ -102,108 +99,104 @@ function getNearbyShops() {
     // ピンを格納する配列を空にする
     markers = [];
   }
-
   // リストをリセット
   document.getElementById("list").innerHTML = "";
 
-  // 現在のマップの中心座標を取得
-  var latitude = map.getCenter().lat();
-  var longitude = map.getCenter().lng();
+  if (validation() == true) {
+    // 現在のマップの中心座標を取得
+    var latitude = map.getCenter().lat();
+    var longitude = map.getCenter().lng();
 
-  // ＜検索条件＞
-  // 指定した曜日を取得
-  // 0: 日曜日, ..., 6: 土曜日
-  var day = new Date(document.getElementById('date').value).getDay();
-  console.log("曜日：" + day);
-  // 指定した開始時間を取得
-  var time = document.getElementById('time').value.replace(":", "");
-  // カテゴリを取得
-  var keywords = [];
-  const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
-  checkboxes.forEach((checkbox) => {
-    keywords.push(checkbox.value);
-  });
-  // console.log(keywords.join(' | '));
+    // ＜検索条件＞
+    // 指定した曜日を取得
+    // 0: 日曜日, ..., 6: 土曜日
+    var day = new Date(document.getElementById('date').value).getDay();
+    console.log("曜日：" + day);
+    // 指定した開始時間を取得
+    var time = document.getElementById('time').value.replace(":", "");
+    // カテゴリを取得
+    var keywords = [];
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+    checkboxes.forEach((checkbox) => {
+      keywords.push(checkbox.value);
+    });
 
-  // ＜周辺検索＞
-  // リクエストを作成
-  var request = {
-    location: { lat: latitude, lng: longitude },
-    radius: '500', // 検索半径(m)
-    maxResults: 30,
-    // type:  // 対応しているカテゴリが限られているため使用しない
-    keyword: keywords.join(' OR ') // キーワードを結合して検索
-  };
+    // ＜周辺検索＞
+    // リクエストを作成
+    var request = {
+      location: { lat: latitude, lng: longitude },
+      radius: '500', // 検索半径(m)
+      maxResults: 30,
+      // type:  // 対応しているカテゴリが限られているため使用しない
+      keyword: keywords.join(' | ') // キーワードを結合して検索
+    };
 
-  // PlacesService オブジェクトを作成
-  var service = new google.maps.places.PlacesService(map);
+    // PlacesService オブジェクトを作成
+    var service = new google.maps.places.PlacesService(map);
 
-  // 検索リクエストを送信・結果を絞り込み(コールバック関数)
-  service.nearbySearch(request, function(results, status) {
-    if (status === google.maps.places.PlacesServiceStatus.OK) {
-      console.log("nearbyAearch");
+    // 検索リクエストを送信・結果を絞り込み(コールバック関数)
+    service.nearbySearch(request, function(results, status) {
+      if (status === google.maps.places.PlacesServiceStatus.OK) {
+        console.log("nearbyAearch");
 
-      // カテゴリでフィルタリング
-      var filteredResults = results.filter(function(place) {
-        // console.log(place.name);
-        var placeTypes = place.types;
-        // console.log(placeTypes);
-        for (var i = 0; i < excludedTypes.length; i++) {
-          if (placeTypes.includes(excludedTypes[i])) {
-            return false;
-          }
-        }
-        return true;
-      });
-      
-      // ＜各店舗について詳細情報を取得＞
-      console.log("get detail");
-      filteredResults.forEach(function(place) {
-        // リクエストを作成
-        var detailRequest = {
-          placeId: place.place_id, // 店舗の Place ID
-          fields: ['name', 'opening_hours', 'types'] // 取得する情報の種類
-        };
-
-        service.getDetails(detailRequest, function(placeResult, status) {
-          if (status === google.maps.places.PlacesServiceStatus.OK) {
-            console.log(placeResult);
-
-            // 店舗詳細情報のハッシュを作成
-            var placeInfo = getPlaceInfo(place, placeResult, day);
-            console.log(placeInfo);
-
-            // ＜指定条件すべてに当てはまる場合＞
-            if (checkConditions(placeInfo, time) == true) {
-              
-              // 配列に追加
-              // shops.push(placeInfo);
-              
-              // ピンを立てる
-              putPinOnMap(placeInfo, map);
-
-              // リスト表示
-              addToList(placeInfo);
+        // カテゴリでフィルタリング
+        var filteredResults = results.filter(function(place) {
+          // console.log(place.name);
+          var placeTypes = place.types;
+          // console.log(placeTypes);
+          for (var i = 0; i < excludedTypes.length; i++) {
+            if (placeTypes.includes(excludedTypes[i])) {
+              return false;
             }
-            
-          } else {
-            console.error('Failed to get place details:', status);
           }
+          return true;
         });
+        
+        // ＜各店舗について詳細情報を取得＞
+        console.log("get detail");
+        filteredResults.forEach(function(place) {
+          // リクエストを作成
+          var detailRequest = {
+            placeId: place.place_id, // 店舗の Place ID
+            fields: ['name', 'opening_hours', 'types', 'photos'] // 取得する情報の種類
+          };
 
-      });
-      // detail取得終了
+          service.getDetails(detailRequest, function(placeResult, status) {
+            if (status === google.maps.places.PlacesServiceStatus.OK) {
+              console.log(placeResult);
 
-    } else if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-      console.error('店舗が見つかりませんでした。', status);
-      alert('店舗が見つかりませんでした。');
-    } else {
-      console.error('Places API request failed:', status);
-    }
+              // 店舗詳細情報のハッシュを作成
+              var placeInfo = getPlaceInfo(place, placeResult, day);
+              console.log(placeInfo);
 
-  });
-  // 周辺検索終了
+              // ＜指定条件すべてに当てはまる場合＞
+              if (checkConditions(placeInfo, time) == true) {
+                
+                // ピンを立てる
+                putPinOnMap(placeInfo, map);
 
+                // リスト表示
+                addToList(placeInfo);
+              }
+              
+            } else {
+              console.error('Failed to get place details:', status);
+            }
+          });
+
+        });
+        // detail取得終了
+
+      } else if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+        console.error('店舗が見つかりませんでした。', status);
+        alert('店舗が見つかりませんでした。');
+      } else {
+        console.error('Places API request failed:', status);
+      }
+
+    });
+    // 周辺検索終了
+  }
 }
 
 // 情報ハッシュを作成
@@ -221,37 +214,69 @@ function getPlaceInfo(place, placeResult, day) {
   var openingHours = placeResult.opening_hours;
   var openingTime = '';
   var closingTime = '';
-  if (openingHours && openingHours.periods) {
-    //対象の曜日のデータがあるか(営業しているか)確認
-    if (day in openingHours.periods) {
-      // 開店時間の情報があるか確認
-      if (openingHours.periods[day].open) {
-        openingTime = openingHours.periods[day].open.time;
-      } else {
-        if (openingHours.periods[0].open) {
-          openingTime = openingHours.periods[0].open.time;
-        }
-      }
 
-      if (openingHours.periods[day].close) {
-        closingTime = openingHours.periods[day].close.time;
-        if (closingTime[0]=='0') {
-          let hours = parseInt(closingTime.substring(0, 2)) + 24;
-          closingTime = hours.toString() + closingTime.substring(2);
-        }
-      } else {
-        if (openingHours.periods[0].close) {
-          closingTime = openingHours.periods[0].close.time;
+  if (openingHours) {
+    if (openingHours.weekday_text) {
+      if (day in openingHours.weekday_text) {
+        var text = openingHours.weekday_text[day];
+        if(text.indexOf("24 時間営業") > -1) {
+          console.log("24時間営業");
+          openingTime = '0000';
+          closingTime = '2400';
+        } else if (text.indexOf("定休日") > -1) {
+          console.log("定休日");
+          openingTime = '';
+          closingTime = '';
+        } else {
+          console.log("他");
+          const pattern = /(\d{1,2})時(\d{2})分/g;
+          const matches = text.match(pattern);
+          openingTime = matches[0].replace(/時|分/g, "").padStart(4, '0');
+          closingTime = matches[1].replace(/時|分/g, "").padStart(4, '0');
           if (closingTime[0]=='0') {
             let hours = parseInt(closingTime.substring(0, 2)) + 24;
             closingTime = hours.toString() + closingTime.substring(2);
           }
         }
       }
-    }
+    } else if (openingHours.periods) {
+      if (day in openingHours.periods) {
+
+        if (openingHours.periods[day].open) {
+          openingTime = openingHours.periods[day].open.time;
+        } else {
+          if (openingHours.periods[0].open) {
+            openingTime = openingHours.periods[0].open.time;
+          }
+        }
+  
+        if (openingHours.periods[day].close) {
+          closingTime = openingHours.periods[day].close.time;
+          if (closingTime[0]=='0') {
+            let hours = parseInt(closingTime.substring(0, 2)) + 24;
+            closingTime = hours.toString() + closingTime.substring(2);
+          }
+        } else {
+          if (openingHours.periods[0].close) {
+            closingTime = openingHours.periods[0].close.time;
+            if (closingTime[0]=='0') {
+              let hours = parseInt(closingTime.substring(0, 2)) + 24;
+              closingTime = hours.toString() + closingTime.substring(2);
+            }
+          }
+        }
+      }
+    } 
   }
 
-  // ハッシュ作成
+  if (placeResult.photos && placeResult.photos.length > 0) {
+    // 写真が存在する場合、最初の写真を取得
+    var photo = placeResult.photos[0];
+    var photoUrl = photo.getUrl({ maxWidth: 300, maxHeight: 200 }); // サイズを指定してURLを取得
+  } else {
+    var photoUrl = '';
+  }
+
   var placeInfo = {
     name: placeResult.name, //店舗名
     openingTime: openingTime,
@@ -259,7 +284,8 @@ function getPlaceInfo(place, placeResult, day) {
     categories: categories,
     place_id: place.place_id,
     // position: placeResult.geometry.location, // 取得不可
-    position: place.geometry.location
+    position: place.geometry.location,
+    photo: photoUrl
   };
 
   return placeInfo;
@@ -274,10 +300,6 @@ function checkConditions(placeInfo, time) {
       return false;
     }
   }
-
-  // console.log("開店時間：" + placeInfo.openingTime);
-  // console.log("利用開始：" + time);
-  // console.log("閉店時間：" + placeInfo.closingTime);
 
   // 開店時間、閉店時間の記載がないものは除外
   // if (placeInfo.openingTime == '' || placeInfo.closingTime == '') {
@@ -298,7 +320,7 @@ function checkConditions(placeInfo, time) {
 function putPinOnMap(placeInfo, map) {
   // 情報ウィンドウを作成
   var contentString = '<div>' +
-    '<h6>' + placeInfo.name + '</h6>' +
+    '<p>' + placeInfo.name + '</p>' +
     '<p>' + placeInfo.openingTime + ' - ' + placeInfo.closingTime + '</p>' +
     // '<p><strong>Category:</strong> ' + strCategory + '</p>' +
     // '<p>Place ID:' + placeInfo.place_id + '</p>' +
@@ -323,23 +345,42 @@ function putPinOnMap(placeInfo, map) {
 // ハッシュを元にリストに追加
 function addToList(placeInfo) {
   var newItem = document.createElement("div");
-  newItem.classList.add("row");
+  newItem.classList.add("row", "list-item");
   newItem.innerHTML = `
     <div class="col-4 p-2">
-        <img src="https://placehold.jp/150x100.png" class="img-fluid">
+      <img src="" class="img-fluid">
     </div>
     <div class="col-8">
-        <h5 class="text-start p-1">名前</h4>
-        <p class="text-start p-1">説明</p>
+      <h6 class="text-start p-1">名前</h6>
+      <p class="text-start p-1">説明</p>
     </div>
     <div class="col-1"></div>
   `;
-  // 画像・名前・説明を設定
+  // 名前・説明・画像を設定
   let name = placeInfo.name;
-  let description = placeInfo.openingTime + ' - ' + placeInfo.closingTime;
+  let description = '営業時間：' + placeInfo.openingTime + ' - ' + placeInfo.closingTime;
+  let photo = placeInfo.photo;
   
-  newItem.querySelector("h5").textContent = name;
+  newItem.querySelector("h6").textContent = name;
   newItem.querySelector("p").textContent = description;
+  newItem.querySelector("img").src = photo;
 
   document.getElementById('list').appendChild(newItem);
+}
+
+
+function validation() {
+  let isChecked = false;
+  document.querySelectorAll('input[type="checkbox"]').forEach(function(checkbox) {
+      if (checkbox.checked) {
+        isChecked = true;
+      }
+  });
+
+  if (!isChecked) {
+      alert("カテゴリを1つ以上選択して下さい。");
+      return false;
+  } else {
+    return true;
+  }
 }
