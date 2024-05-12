@@ -1,0 +1,78 @@
+<h2>MAP</h2>
+
+<div class="container text-center">
+  <div class="row">
+    <!-- メイン -->
+    <div class="col-md-11">
+      <!-- 検索バー -->
+      <div class="row search-area">
+        <div class="col-md-8">
+          <input id="address" type="textbox" placeholder="" class="form-control">
+        </div>
+        <div class="col-sm-6 col-md-2 d-flex justify-content-md-end">
+          <!-- <input type="button" value="検索" onclick="codeAddress()" class="btn btn-primary btn-block" > -->
+          <button onclick="codeAddress()" class="btn btn-primary btn-block">検索</button>
+        </div>
+        <div class="col-sm-6 col-md-2 d-flex justify-content-md-end">
+          <button onclick="moveToCurrentLocation()" class="btn btn-primary btn-block">現在地</button>
+        </div>
+
+      </div>
+      
+      <!-- マップ -->
+      <div class="row map-area">
+        <div id='map'></div>
+      </div>
+
+      <!-- 店舗取得ボタン -->
+      <div class="row button-area">
+        <button onclick="getNearbyShops()" class="btn btn-primary btn-block">店舗を取得</button>
+      </div>
+
+      <!-- カテゴリ -->
+      <div class="row">
+        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+          <label class="btn btn-outline-primary">
+            <input type="checkbox" autocomplete="off" id="cafe" value="カフェ" >カフェ
+          </label>
+          <label class="btn btn-outline-primary">
+            <input type="checkbox" autocomplete="off" id="internet_cafe" value="インターネットカフェ" > インターネットカフェ
+          </label>
+          <label class="btn btn-outline-primary" >
+            <input type="checkbox" autocomplete="off" id="karaoke" value="カラオケ" > カラオケ
+          </label>
+        </div>
+      </div>
+
+      <!-- 日付・時間 -->
+      <div class="row">
+      <!-- <p>日付<input type="date" id="date" max="2034-12-31" /></p> -->
+      <!-- <p>営業時間<input type="time" id="time" /></p> -->
+      </div>
+
+      <div class="row">
+        <div class="col-md-6" >
+          <div class="form-group">
+            <label for="date">日付</label>
+            <input type="date" id="date" class="form-control" max="2034-12-31">
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="time">営業時間</label>
+            <input type="time" id="time" class="form-control">
+          </div>
+        </div>        
+      </div>
+
+      <!-- 店舗リスト -->
+      <div class="row">
+        <div class="col" id="list"></div>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=<%= ENV['GOOGLE_MAP_API'] %>&callback=initMap&libraries=places" async defer></script>
+<%= javascript_include_tag 'maps' %>
