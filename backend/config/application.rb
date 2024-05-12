@@ -12,6 +12,7 @@ module Api
     config.load_defaults 7.0
 
     config.hosts << "testapp-map-js-rails.onrender.com"
+    config.hosts << "killtime-spots-finder.onrender.com"
 
     # Configuration for the application, engines, and railties goes here.
     #
