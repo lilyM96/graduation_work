@@ -151,7 +151,7 @@ function getNearbyShops() {
           }
           return true;
         });
-        
+
         // ＜各店舗について詳細情報を取得＞
         console.log("get detail");
         filteredResults.forEach(function(place) {
@@ -228,7 +228,7 @@ function getPlaceInfo(place, placeResult, day) {
           openingTime = '';
           closingTime = '';
         } else {
-          console.log("他");
+          console.log("その他");
           const pattern = /(\d{1,2})時(\d{2})分/g;
           const matches = text.match(pattern);
           openingTime = matches[0].replace(/時|分/g, "").padStart(4, '0');
